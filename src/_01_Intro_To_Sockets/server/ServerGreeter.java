@@ -1,24 +1,48 @@
 package _01_Intro_To_Sockets.server;
 
 import java.net.*;
+
+import javax.swing.JOptionPane;
+
 import java.io.*;
 
 public class ServerGreeter extends Thread {
 	//1. Create an object of the ServerSocket class
-
+	ServerSocket servSocket;
 	public ServerGreeter() throws IOException {
 		//2. Initialize the ServerSocket object. In the parameters,
 		//   you must define the port at which the server will listen for connections.
-		
+		servSocket = new ServerSocket(8080);
 		//*OPTIONAL* you can set a time limit for the server to wait by using the 
 		//  ServerSocket's setSoTimeout(int timeInMilliSeconds) method
 	}
 
 	public void run() {
 		//3. Create a boolean variable and initialize it to true.
-		
+		boolean bool = true;
 		//4. Make a while loop that continues looping as long as the boolean created in the previous step is true.
-			
+			while (bool == true) {
+				try {
+					System.out.println("server is waiting for client to connect...");
+					Socket socket = servSocket.accept();
+					System.out.println("client has connected");
+					DataInputStream dataInput = new DataInputStream(socket.getInputStream());
+			        dataInput.readUTF();
+			        DataOutputStream dataOutput = new DataOutputStream(socket.getOutputStream());
+			        dataOutput.writeUTF("message");
+			        socket.close();
+					
+				}
+				catch (SocketTimeoutException e) {
+					bool = false;
+					e.printStackTrace();
+				}
+				catch (IOException e) {
+					bool = false;
+					e.printStackTrace();
+				}
+				
+			}
 			//5. Make a try-catch block that checks for two types Exceptions: SocketTimeoutException and IOException.
 			//   Put steps 8 - 15 in the try block.
 		
@@ -49,6 +73,15 @@ public class ServerGreeter extends Thread {
 
 	public static void main(String[] args) {
 		//16. In a new thread, create an object of the ServerGreeter class and start the thread. Don't forget the try-catch.
+		try {
+			Thread thread = new Thread(new ServerGreeter());
+			thread.start();
+			//greet.run();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 	}
 }
